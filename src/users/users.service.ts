@@ -25,19 +25,27 @@ export class UsersService {
   }
 
   async update(id: number, attrs: Partial<User>): Promise<User> {
-    const user = await this.repo.findOneByOrFail({ id });
-    if (!user) {
-      throw new Error('User not found');
+    try {
+      const user = await this.repo.findOneByOrFail({ id });
+      if (!user) {
+        throw new Error('User not found');
+      }
+      Object.assign(user, attrs);
+      return await this.repo.save(user);
+    } catch (error) {
+      throw new NotFoundException('User not found');
     }
-    Object.assign(user, attrs);
-    return await this.repo.save(user);
   }
 
   async remove(id: number): Promise<User> {
-    const user = await this.repo.findOneByOrFail({ id });
-    if (!user) {
-      throw new Error('User not found');
+    try {
+      const user = await this.repo.findOneByOrFail({ id });
+      if (!user) {
+        throw new Error('User not found');
+      }
+      return await this.repo.remove(user);
+    } catch (error) {
+      throw new NotFoundException('User not found');
     }
-    return await this.repo.remove(user);
   }
 }
