@@ -17,8 +17,9 @@ describe('AuthService', () => {
     // create fake user service
     const fakeUserService: Partial<UsersService> = {
       findOneOrNull: () => Promise.resolve(null),
-      create: (email: string, password: string) =>
-        Promise.resolve(fakeUser as User),
+      create: jest.fn((email: string, password: string) =>
+        Promise.resolve({ id: 1, email, password } as User),
+      ),
     };
 
     // Create and compile a test module with AuthService and fake user service
@@ -35,5 +36,14 @@ describe('AuthService', () => {
 
   it('can create an instance of auth service', () => {
     expect(service).toBeDefined();
+  });
+
+  it('create a new user with salted and hashed password', async () => {
+    const user = await service.signup('test@example.com', 'password');
+
+    expect(user.password).not.toEqual('password'); // Ensure the password is not the original one
+    const [salt, hash] = user.password.split('.');
+    expect(salt).toBeDefined(); // Ensure the salt exists
+    expect(hash).toBeDefined(); // Ensure the hash exists
   });
 });
