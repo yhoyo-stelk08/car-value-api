@@ -37,6 +37,15 @@ export class UsersController {
     return user;
   }
 
+  @Get('currentUser')
+  async currentUser(@Session() session: any) {
+    if (!session.userId) {
+      return null;
+    }
+    const user = await this.userService.findOne({ id: session.userId });
+    return user;
+  }
+
   @Get('listUsers')
   findAllUsers() {
     return this.userService.findAll();
