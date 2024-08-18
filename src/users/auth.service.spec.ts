@@ -1,8 +1,12 @@
 import { BadRequestException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { scrypt as _scrypt, randomBytes } from 'crypto';
+import { promisify } from 'util';
 import { AuthService } from './auth.service';
 import { User } from './users.entity';
 import { UsersService } from './users.service';
+
+const scrypt = promisify(_scrypt);
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -87,12 +91,15 @@ describe('AuthService', () => {
   });
 
   it('throws an error if the password is incorrect', async () => {
+    const salt = randomBytes(8).toString('hex');
+    const hash = (await scrypt('password', salt, 32)) as Buffer;
+    const storedPassword = salt + '.' + hash.toString('hex');
     // Mock `findOneOrNull` to simulate a user existing with the given email
     fakeUserService.findOneOrNull = jest.fn().mockResolvedValue({
       id: 1,
       email: 'test@example.com',
-      password: 'password',
-    });
+      password: storedPassword,
+    } as User);
 
     // Check that `signin` throws a `BadRequestException`
     await expect(
@@ -103,5 +110,27 @@ describe('AuthService', () => {
     await expect(
       service.signin('test@example.com', 'password2'),
     ).rejects.toThrow('Invalid password');
+  });
+
+  it('returns the user if the email and password are correct', async () => {
+    const salt = randomBytes(8).toString('hex');
+    const hash = (await scrypt('password', salt, 32)) as Buffer;
+    const storedPassword = salt + '.' + hash.toString('hex');
+
+    // Mock `findOneOrNull` to simulate a user existing with the given email
+    fakeUserService.findOneOrNull = jest.fn().mockResolvedValue({
+      id: 1,
+      email: 'test@example.com',
+      password: storedPassword,
+    } as User);
+
+    // Check that `signin` returns the user
+    const user = await service.signin('test@example.com', 'password');
+
+    // ensure the user is returned
+    expect(user).toBeDefined();
+
+    // Ensure the user is the correct user
+    expect(user.email).toBe('test@example.com');
   });
 });
