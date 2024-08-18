@@ -6,6 +6,7 @@ import { UsersService } from './users.service';
 
 describe('AuthService', () => {
   let service: AuthService;
+  let fakeUserService: Partial<UsersService>;
 
   beforeEach(async () => {
     // Create fake user object
@@ -16,7 +17,7 @@ describe('AuthService', () => {
     };
 
     // create fake user service
-    const fakeUserService: Partial<UsersService> = {
+    fakeUserService = {
       findOneOrNull: () => Promise.resolve(null),
       create: jest.fn((email: string, password: string) =>
         Promise.resolve({ id: 1, email, password } as User),
@@ -48,16 +49,59 @@ describe('AuthService', () => {
     expect(hash).toBeDefined(); // Ensure the hash exists
   });
 
-  it('throws an error if the email already exist', async () => {
-    // First signup attempt should create a new user
-    await service.signup('test@example.com', 'password');
-    try {
-      await service.signup('test@exaple.com', 'password');
+  it('throws an error if the user sign up with an email that already exist', async () => {
+    // Mock `findOneOrNull` to simulate a user already existing with the given email
+    fakeUserService.findOneOrNull = jest.fn().mockResolvedValue({
+      id: 1,
+      email: 'test@example.com',
+      password: 'password',
+    } as User);
 
-      // If the above line does not throw an error, fail the test
-      throw new BadRequestException('Email already exists');
-    } catch (error) {
-      expect(error.message).toEqual('Email already exists');
-    }
+    // Check that `signup` throws a `BadRequestException`
+    await expect(
+      service.signup('test@example.com', 'password'),
+    ).rejects.toThrow(BadRequestException);
+
+    // Ensure the error message is 'Email already exists'
+    await expect(
+      service.signup('test@example.com', 'password'),
+    ).rejects.toThrow('Email already exists');
+
+    // Ensure the `create` method is not called because the email already exists
+    expect(fakeUserService.create).not.toHaveBeenCalled();
+  });
+
+  it('throws an error if the email does not exist', async () => {
+    // Mock `findOneOrNull` to simulate a user not existing with the given email
+    fakeUserService.findOneOrNull = jest.fn().mockResolvedValue(null);
+
+    // Check that `signin` throws a `BadRequestException`
+    await expect(
+      service.signin('test2@example.com', 'password'),
+    ).rejects.toThrow(BadRequestException);
+
+    // Ensure the error message is 'Invalid email'
+    await expect(
+      service.signin('test@example.com', 'password'),
+    ).rejects.toThrow('Invalid email');
+  });
+
+  it('throws an error if the password is incorrect', async () => {
+    // Mock `findOneOrNull` to simulate a user existing with the given email
+    fakeUserService.findOneOrNull = jest.fn().mockResolvedValue({
+      id: 1,
+      email: 'test@example.com',
+      password: 'password',
+    });
+
+    // Check that `signin` throws a `BadRequestException`
+    await expect(
+      service.signin('test@example.com', 'password2'),
+    ).rejects.toThrow(BadRequestException);
+
+    // Ensure the error message is 'Invalid password'
+    await expect(
+      service.signin('test@example.com', 'password2'),
+    ).rejects.toThrow('Invalid password');
   });
 });
