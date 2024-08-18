@@ -13,6 +13,7 @@ import { CreateUserDto } from 'src/dtos/create-user.dto';
 import { UserDto } from 'src/dtos/user.dto';
 import { Serialize } from 'src/interceptors/serialize.interceptor';
 import { AuthService } from './auth.service';
+import { CurrentUser } from './decorators/current-user.decorator';
 import { UsersService } from './users.service';
 
 @Controller('auth')
@@ -37,12 +38,17 @@ export class UsersController {
     return user;
   }
 
+  // @Get('currentUser')
+  // async currentUser(@Session() session: any) {
+  //   if (!session.userId) {
+  //     return null;
+  //   }
+  //   const user = await this.userService.findOneOrNull({ id: session.userId });
+  //   return user;
+  // }
+
   @Get('currentUser')
-  async currentUser(@Session() session: any) {
-    if (!session.userId) {
-      return null;
-    }
-    const user = await this.userService.findOneOrNull({ id: session.userId });
+  async currentUser(@CurrentUser() user: string) {
     return user;
   }
 
