@@ -8,7 +8,8 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.use(
     cookieSession({
-      keys: 'Stelkers08*',
+      keys: ['Stelkers08*'],
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
     }),
   );
   app.useGlobalPipes(
