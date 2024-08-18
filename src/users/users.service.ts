@@ -20,6 +20,17 @@ export class UsersService {
     }
   }
 
+  async findOneOrNull(criteria: {
+    id?: number;
+    email?: string;
+  }): Promise<User | null> {
+    try {
+      return await this.repo.findOneByOrFail(criteria);
+    } catch (error) {
+      return null;
+    }
+  }
+
   async findAll(): Promise<User[]> {
     return await this.repo.find();
   }
