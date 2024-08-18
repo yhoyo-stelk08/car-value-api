@@ -42,8 +42,14 @@ export class UsersController {
     if (!session.userId) {
       return null;
     }
-    const user = await this.userService.findOne({ id: session.userId });
+    const user = await this.userService.findOneOrNull({ id: session.userId });
     return user;
+  }
+
+  @Post('signout')
+  async signOut(@Session() session: any) {
+    session.userId = null;
+    return { message: 'You have successfully signed out' };
   }
 
   @Get('listUsers')
