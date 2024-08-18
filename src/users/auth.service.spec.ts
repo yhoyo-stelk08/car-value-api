@@ -1,3 +1,4 @@
+import { BadRequestException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service';
 import { User } from './users.entity';
@@ -45,5 +46,18 @@ describe('AuthService', () => {
     const [salt, hash] = user.password.split('.');
     expect(salt).toBeDefined(); // Ensure the salt exists
     expect(hash).toBeDefined(); // Ensure the hash exists
+  });
+
+  it('throws an error if the email already exist', async () => {
+    // First signup attempt should create a new user
+    await service.signup('test@example.com', 'password');
+    try {
+      await service.signup('test@exaple.com', 'password');
+
+      // If the above line does not throw an error, fail the test
+      throw new BadRequestException('Email already exists');
+    } catch (error) {
+      expect(error.message).toEqual('Email already exists');
+    }
   });
 });
