@@ -1,9 +1,19 @@
 import { CreateUserDto } from '@/dtos/create-user.dto';
+import { AuthGuard } from '@/guards/auth.guard';
+import { ExecutionContext, Injectable } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service';
 import { UsersController } from './users.controller';
 import { User } from './users.entity';
 import { UsersService } from './users.service';
+
+// Create mock AuthGuard
+@Injectable()
+class MockAuthGuard {
+  canActivate(context: ExecutionContext) {
+    return true; // Always allow access in the test
+  }
+}
 
 // create users service mock
 const usersServiceMock = {
@@ -33,7 +43,10 @@ describe('UsersController', () => {
         { provide: UsersService, useValue: usersServiceMock },
         { provide: AuthService, useValue: authServiceMock },
       ],
-    }).compile();
+    })
+      .overrideGuard(AuthGuard)
+      .useClass(MockAuthGuard)
+      .compile();
 
     controller = module.get<UsersController>(UsersController);
     usersService = module.get<UsersService>(
@@ -99,13 +112,26 @@ describe('UsersController', () => {
     expect(session.userId).toEqual(createdUser.id);
   });
 
-  it('should get the current user', async () => {});
+  it('should get the current user', async () => {
+    // Mock the current user by applying the mock decorator manually
+    const user = 'test@example.com';
+
+    // Call the method directly with the mock user
+    const result = await controller.currentUser(user);
+
+    // Assertions
+    expect(result).toBe(user);
+  });
 
   it('should sign out the user', async () => {});
 
   it('should return an array of users when AuthGuard allows access', async () => {});
+
   it('should find user by email', async () => {});
+
   it('should find user by id', async () => {});
+
   it('should update user data', async () => {});
+
   it('should remove user', async () => {});
 });
