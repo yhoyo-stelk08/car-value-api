@@ -26,6 +26,6 @@ export class Report {
   @Column()
   lng: number;
 
-  @Column()
-  approved: boolean;
+  // @Column()
+  // approved: boolean;
 }
