@@ -1,4 +1,5 @@
 import {
+  IsBoolean,
   IsLatitude,
   IsLongitude,
   IsNumber,
@@ -32,4 +33,7 @@ export class CreateReportDto {
 
   @IsLongitude()
   lng: number;
+
+  @IsBoolean()
+  approved: boolean;
 }

@@ -1,4 +1,5 @@
 import {
+  IsBoolean,
   IsLatitude,
   IsLongitude,
   IsNumber,
@@ -40,4 +41,7 @@ export class UpdateReportDto {
   @IsLongitude()
   @IsOptional()
   lng?: number;
+
+  @IsBoolean()
+  approved?: boolean;
 }
