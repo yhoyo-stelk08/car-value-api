@@ -12,6 +12,7 @@ const mockReportRepository = () => ({
   create: jest.fn(),
   save: jest.fn(),
   find: jest.fn(),
+  findBy: jest.fn(),
   remove: jest.fn(),
   findOneByOrFail: jest.fn(),
 });
@@ -128,6 +129,25 @@ describe('ReportsService', () => {
 
       // Assertions
       expect(mockRepository.find).toHaveBeenCalled();
+
+      // Check if the reports array is returned
+      expect(reports).toEqual([mockedReportData]);
+    });
+
+    it('should find all reports based on search criteria and return an array of reports object', async () => {
+      // mock the search criteria
+      const searchCriteria = { make: 'Toyota' };
+
+      // Mock the repository methods
+      mockRepository.findBy.mockResolvedValue([mockedReportData]); // mock the findBy method
+
+      // mock the findAll method in service
+      const reports = await service.findAll(searchCriteria);
+
+      // Assertions
+
+      // expect the findBy method to be called with the search criteria
+      expect(mockRepository.findBy).toHaveBeenCalledWith(searchCriteria);
 
       // Check if the reports array is returned
       expect(reports).toEqual([mockedReportData]);
