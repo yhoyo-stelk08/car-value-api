@@ -144,6 +144,48 @@ describe('ReportsService', () => {
     // });
   });
 
+  describe('approveReport', () => {
+    it('should approve a report and return the approved report with the associated user', async () => {
+      const approved = true;
+      const reportWithUser = { ...mockedReportData, user: mockedUserData };
+
+      // Mock the repository to find and save the report
+      reportRepository.findOneByOrFail.mockResolvedValue(reportWithUser); // existing report
+      reportRepository.save.mockResolvedValue(reportWithUser); // updated report
+
+      // Call the approveReport method in the service
+      const report = await service.approveReport(1, approved);
+
+      // Assertions
+      expect(reportRepository.findOneByOrFail).toHaveBeenCalledWith({ id: 1 });
+      expect(reportRepository.save).toHaveBeenCalledWith(reportWithUser);
+      expect(report.user).toEqual(mockedUserData);
+      expect(report).toEqual(reportWithUser);
+    });
+
+    it('should throw an error if the report is not found', async () => {
+      // mock the search criteria
+      const searchCriteria = { id: 1 };
+
+      // mock the repository methods
+      reportRepository.findOneByOrFail.mockRejectedValue(
+        new NotFoundException('Report not found'),
+      ); // mock the findOneByOrFail method
+
+      // Assertions
+
+      // expect the error is thrown
+      await expect(service.approveReport(1, true)).rejects.toThrow(
+        'Report not found',
+      );
+
+      // expect the findOneByOrFail method to be called with the search criteria
+      expect(reportRepository.findOneByOrFail).toHaveBeenCalledWith(
+        searchCriteria,
+      );
+    });
+  });
+
   describe('findAll', () => {
     it('should find all reports and return them with associated user', async () => {
       // Mock report data
