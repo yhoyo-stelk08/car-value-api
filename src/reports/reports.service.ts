@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateReportDto } from './dtos/create-report.dto';
@@ -33,7 +33,11 @@ export class ReportsService {
     model?: string;
     year?: number;
   }): Promise<Report> {
-    return null;
+    try {
+      return await this.repo.findOneByOrFail(criteria);
+    } catch (error) {
+      throw new NotFoundException('Report not found');
+    }
   }
 
   async update(id: number, attrs: Partial<Report>): Promise<Report> {
