@@ -17,8 +17,17 @@ export class ReportsService {
     }
   }
 
-  async findAll(): Promise<Report[]> {
+  async findAll(criteria?: {
+    make?: string;
+    model?: string;
+    year?: number;
+    mileage?: number;
+    price?: number;
+  }): Promise<Report[]> {
     try {
+      if (criteria) {
+        return await this.repo.findBy(criteria);
+      }
       return await this.repo.find();
     } catch (error) {
       return [];
