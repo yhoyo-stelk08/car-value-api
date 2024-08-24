@@ -63,6 +63,11 @@ describe('ReportsService', () => {
     expect(service).toBeDefined();
   });
 
+  it('should inject the report repository', () => {
+    expect(mockRepository).toBeDefined();
+    expect(service).toHaveProperty('repo');
+  });
+
   describe('create', () => {
     it('should create and return a new report', async () => {
       // Mock the repository methods
@@ -71,8 +76,6 @@ describe('ReportsService', () => {
 
       // Create a new report
       const report = await service.create(mockedReportData);
-
-      console.log(report);
 
       // Assertions
       expect(mockRepository.create).toHaveBeenCalledWith(mockedReportData);
