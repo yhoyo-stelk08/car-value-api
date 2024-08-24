@@ -21,7 +21,18 @@ export class ReportsController {
     mileage?: number;
     price?: number;
   }) {
-    return null;
+    if (criteria) {
+      try {
+        return this.reportService.findAll(criteria);
+      } catch (error) {
+        return [];
+      }
+    }
+    try {
+      return this.reportService.findAll();
+    } catch (error) {
+      return [];
+    }
   }
 
   findOne(criteria: {
