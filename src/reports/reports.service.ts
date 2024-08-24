@@ -41,10 +41,31 @@ export class ReportsService {
   }
 
   async update(id: number, attrs: Partial<Report>): Promise<Report> {
-    return null;
+    try {
+      const report = await this.repo.findOneByOrFail({ id });
+
+      if (!report) {
+        throw new NotFoundException('Report not found');
+      }
+
+      Object.assign(report, attrs);
+      return await this.repo.save(report);
+    } catch (error) {
+      throw new NotFoundException('Report not found');
+    }
   }
 
   async remove(id: number): Promise<Report> {
-    return null;
+    try {
+      const report = await this.repo.findOneByOrFail({ id });
+
+      if (!report) {
+        throw new NotFoundException('Report not found');
+      }
+
+      return await this.repo.remove(report);
+    } catch (error) {
+      throw new NotFoundException('Report not found');
+    }
   }
 }
