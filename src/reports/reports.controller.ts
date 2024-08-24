@@ -1,5 +1,11 @@
 import { AuthGuard } from '@/guards/auth.guard';
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  NotFoundException,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { CreateReportDto } from './dtos/create-report.dto';
 import { UpdateReportDto } from './dtos/update-report.dto';
 import { ReportsService } from './reports.service';
@@ -43,7 +49,17 @@ export class ReportsController {
     model?: string;
     year?: number;
   }) {
-    return null;
+    try {
+      const report = this.reportService.findOne(criteria);
+
+      if (!report) {
+        throw new NotFoundException('Report not found');
+      }
+
+      return report;
+    } catch (error) {
+      throw new NotFoundException('Report not found');
+    }
   }
 
   update(id: number, attrs: UpdateReportDto) {
