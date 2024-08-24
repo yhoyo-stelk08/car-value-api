@@ -42,7 +42,7 @@ describe('ReportsService', () => {
         ReportsService,
         {
           provide: getRepositoryToken(Report),
-          useValue: mockReportRepository,
+          useValue: mockReportRepository(),
         },
       ],
     }).compile();
@@ -71,6 +71,8 @@ describe('ReportsService', () => {
       // Create a new report
       const report = await service.create(mockedReportData);
 
+      console.log(report);
+
       // Assertions
       expect(mockRepository.create).toHaveBeenCalledWith(mockedReportData);
       expect(mockRepository.save).toHaveBeenCalledWith(mockedReportData);
@@ -88,20 +90,22 @@ describe('ReportsService', () => {
     it('should throw an error if the report object is not saved', async () => {
       // Mock the repository methods
       mockRepository.create.mockReturnValue(mockedReportData); // mock the create method
-      mockRepository.save.mockRejectedValue(new Error('Database error')); // mock the save method
+      mockRepository.save.mockRejectedValue(
+        new Error('Unable to create and save report'),
+      ); // mock the save method
 
       // Assertions
+
+      // expect the error is thrown
+      await expect(service.create(mockedReportDto)).rejects.toThrow(
+        'Unable to create and save report',
+      );
 
       // expect the create method to be called with the mocked report dto
       expect(mockRepository.create).toHaveBeenCalledWith(mockedReportDto);
 
       // expect the save method to be called with the mocked report data
       expect(mockRepository.save).toHaveBeenCalledWith(mockedReportData);
-
-      // expect the error is thrown
-      await expect(service.create(mockedReportDto)).rejects.toThrow(
-        'Database error',
-      );
     });
 
     // it('should throw an error if the report object is not created', async () => {
@@ -113,7 +117,7 @@ describe('ReportsService', () => {
   describe('findAll', () => {
     it('should find all reports', async () => {
       // Mock the repository methods
-      mockRepository.find.mockResolvedValue([mockedReportData]); // mock the find method
+      mockRepository.find.mockResolvedValue([mockedReportData]);
 
       // mock the findAll method in service
       const reports = await service.findAll();
