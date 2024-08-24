@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateReportDto } from './dtos/create-report.dto';
+import { UpdateReportDto } from './dtos/update-report.dto';
 import { Report } from './reports.entity';
 import { ReportsService } from './reports.service';
 
@@ -41,7 +42,7 @@ describe('ReportsService', () => {
         ReportsService,
         {
           provide: getRepositoryToken(Report),
-          useValue: mockReportRepository(),
+          useValue: mockReportRepository,
         },
       ],
     }).compile();
@@ -123,17 +124,152 @@ describe('ReportsService', () => {
       // Check if the reports array is returned
       expect(reports).toEqual([mockedReportData]);
     });
+
+    it('should return an empty array when no reports are found', async () => {
+      // mock the repository methods
+      mockRepository.find.mockResolvedValue([]); // mock the find method
+
+      const result = await service.findAll();
+
+      // Assertions
+      expect(mockRepository.find).toHaveBeenCalled(); // expect the find method to be called
+      expect(result).toEqual([]); // expect the result to be an empty array []
+    });
   });
 
   describe('findOne', () => {
-    it('should find a report based on search criteria', async () => {});
+    it('should find a report based on search criteria', async () => {
+      // mock the search criteria
+      const searchCriteria = { id: 1 };
+
+      // Mock the repository methods
+      mockRepository.findOneByOrFail.mockResolvedValue(mockedReportData); // mock the findOneByOrFail method
+
+      // mock the findOne method in service
+      const report = await service.findOne(searchCriteria);
+
+      // Assertions
+
+      // expect the findOneByOrFail method to be called with the search criteria
+      expect(mockRepository.findOneByOrFail).toHaveBeenCalledWith(
+        searchCriteria,
+      );
+
+      // Check if the report object is returned
+      expect(report).toEqual(mockedReportData);
+    });
+
+    it('should throw an error if the report is not found', async () => {
+      // mock the search criteria
+      const searchCriteria = { id: 1 };
+
+      // mock the repository methods
+      mockRepository.findOneByOrFail.mockRejectedValue(
+        new Error('Report not found'),
+      ); // mock the findOneByOrFail method
+
+      // Assertions
+
+      // expect the findOneByOrFail method to be called with the search criteria
+      expect(mockRepository.findOneByOrFail).toHaveBeenCalledWith(
+        searchCriteria,
+      );
+
+      // expect the error is thrown
+      await expect(service.findOne(searchCriteria)).rejects.toThrow(
+        'Report not found',
+      );
+    });
   });
 
   describe('update', () => {
-    it('should update a report', async () => {});
+    it('should update a report', async () => {
+      const updateData: UpdateReportDto = { price: 200000 };
+      const updatedReport: Report = { ...mockedReportData, ...updateData };
+
+      // Mock the repository methods
+      mockRepository.findOneByOrFail.mockResolvedValue(mockedReportData); // mock the findOneByOrFail method
+      mockRepository.save.mockResolvedValue(updatedReport); // mock the save method
+
+      // mock the update method in service
+      const report = await service.update(1, updateData);
+
+      // Assertions
+
+      // expect the findOneByOrFail method to be called with the search criteria
+      expect(mockRepository.findOneByOrFail).toHaveBeenCalledWith({ id: 1 });
+
+      // expect the save method to be called with the updated report data
+      expect(mockRepository.save).toHaveBeenCalledWith(updatedReport);
+
+      // Check if the report object is returned
+      expect(report).toEqual(updatedReport);
+    });
+
+    it('should throw an error if the report is not found', async () => {
+      // mock the search criteria
+      const searchCriteria = { price: 200000 };
+
+      // mock the repository methods
+      mockRepository.findOneByOrFail.mockRejectedValue(
+        new Error('Report not found'),
+      ); // mock the findOneByOrFail method
+
+      // Assertions
+
+      // expect the findOneByOrFail method to be called with the search criteria
+      expect(mockRepository.findOneByOrFail).toHaveBeenCalledWith(
+        searchCriteria,
+      );
+
+      // expect the error is thrown
+      await expect(service.findOne(searchCriteria)).rejects.toThrow(
+        'Report not found',
+      );
+    });
   });
 
   describe('remove', () => {
-    it('should remove a report', async () => {});
+    it('should remove a report', async () => {
+      // Mock the repository methods
+      mockRepository.findOneByOrFail.mockResolvedValue(mockedReportData); // mock the findOneByOrFail method
+      mockRepository.remove.mockResolvedValue(mockedReportData); // mock the remove method
+
+      // mock the remove method in service
+      const report = await service.remove(1);
+
+      // Assertions
+
+      // expect the findOneByOrFail method to be called with the search criteria
+      expect(mockRepository.findOneByOrFail).toHaveBeenCalledWith({ id: 1 });
+
+      // expect the remove method to be called with the report data
+      expect(mockRepository.remove).toHaveBeenCalledWith(mockedReportData);
+
+      // Check if the report object is returned
+      expect(report).toEqual(mockedReportData);
+    });
+
+    it('should throw an error if the report is not found', async () => {
+      // mock the search criteria
+      const searchCriteria = { id: 1 };
+
+      // mock the repository methods
+      mockRepository.findOneByOrFail.mockRejectedValue(
+        new Error('Report not found'),
+      ); // mock the findOneByOrFail method
+
+      // Assertions
+
+      // expect the findOneByOrFail method to be called with the search criteria
+      expect(mockRepository.findOneByOrFail).toHaveBeenCalledWith(
+        searchCriteria,
+      );
+
+      // expect the error is thrown
+      await expect(service.findOne(searchCriteria)).rejects.toThrow(
+        'Report not found',
+      );
+    });
   });
 });
