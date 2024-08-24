@@ -63,10 +63,30 @@ export class ReportsController {
   }
 
   update(id: number, attrs: UpdateReportDto) {
-    return null;
+    try {
+      const report = this.reportService.update(id, attrs);
+
+      if (!report) {
+        throw new NotFoundException('Report not found');
+      }
+
+      return report;
+    } catch (error) {
+      throw new NotFoundException('Report not found');
+    }
   }
 
   remove(id: number) {
-    return null;
+    try {
+      const report = this.reportService.remove(id);
+
+      if (!report) {
+        throw new NotFoundException('Report not found');
+      }
+
+      return report;
+    } catch (error) {
+      throw new NotFoundException('Report not found');
+    }
   }
 }
