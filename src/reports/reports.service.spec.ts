@@ -222,14 +222,14 @@ describe('ReportsService', () => {
 
       // Assertions
 
-      // expect the findOneByOrFail method to be called with the search criteria
-      expect(mockRepository.findOneByOrFail).toHaveBeenCalledWith(
-        searchCriteria,
-      );
-
       // expect the error is thrown
       await expect(service.findOne(searchCriteria)).rejects.toThrow(
         'Report not found',
+      );
+
+      // expect the findOneByOrFail method to be called with the search criteria
+      expect(mockRepository.findOneByOrFail).toHaveBeenCalledWith(
+        searchCriteria,
       );
     });
   });
@@ -266,14 +266,14 @@ describe('ReportsService', () => {
 
       // Assertions
 
-      // expect the findOneByOrFail method to be called with the search criteria
-      expect(mockRepository.findOneByOrFail).toHaveBeenCalledWith(
-        searchCriteria,
-      );
-
       // expect the error is thrown
       await expect(service.findOne(searchCriteria)).rejects.toThrow(
         'Report not found',
+      );
+
+      // expect the findOneByOrFail method to be called with the search criteria
+      expect(mockRepository.findOneByOrFail).toHaveBeenCalledWith(
+        searchCriteria,
       );
     });
   });
