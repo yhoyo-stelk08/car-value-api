@@ -1,6 +1,7 @@
 import { AuthGuard } from '@/guards/auth.guard';
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { CreateReportDto } from './dtos/create-report.dto';
+import { UpdateReportDto } from './dtos/update-report.dto';
 import { ReportsService } from './reports.service';
 
 @Controller('reports')
@@ -34,11 +35,11 @@ export class ReportsController {
     return null;
   }
 
-  update() {
+  update(id: number, attrs: UpdateReportDto) {
     return null;
   }
 
-  remove() {
+  remove(id: number) {
     return null;
   }
 }
