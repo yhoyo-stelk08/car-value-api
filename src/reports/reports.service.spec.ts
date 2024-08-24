@@ -1,3 +1,4 @@
+import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -169,19 +170,19 @@ describe('ReportsService', () => {
 
       // mock the repository methods
       mockRepository.findOneByOrFail.mockRejectedValue(
-        new Error('Report not found'),
+        new NotFoundException('Report not found'),
       ); // mock the findOneByOrFail method
 
       // Assertions
 
-      // expect the findOneByOrFail method to be called with the search criteria
-      expect(mockRepository.findOneByOrFail).toHaveBeenCalledWith(
-        searchCriteria,
-      );
-
       // expect the error is thrown
       await expect(service.findOne(searchCriteria)).rejects.toThrow(
         'Report not found',
+      );
+
+      // expect the findOneByOrFail method to be called with the search criteria
+      expect(mockRepository.findOneByOrFail).toHaveBeenCalledWith(
+        searchCriteria,
       );
     });
   });
