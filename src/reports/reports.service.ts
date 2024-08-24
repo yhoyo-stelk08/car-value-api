@@ -1,3 +1,4 @@
+import { User } from '@/users/users.entity';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -8,9 +9,10 @@ import { Report } from './reports.entity';
 export class ReportsService {
   constructor(@InjectRepository(Report) private repo: Repository<Report>) {}
 
-  async create(createReportDto: CreateReportDto) {
+  async create(createReportDto: CreateReportDto, user: User): Promise<Report> {
     try {
       const report = this.repo.create(createReportDto);
+      report.user = user;
       return await this.repo.save(report);
     } catch (error) {
       throw new Error('Unable to create and save report');

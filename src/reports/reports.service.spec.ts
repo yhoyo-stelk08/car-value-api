@@ -91,13 +91,16 @@ describe('ReportsService', () => {
   });
 
   describe('create', () => {
-    it('should create and return a new report', async () => {
+    it('should create and return a new report with associated user', async () => {
+      // Mock the user repository methods
+      userRepository.findOne.mockResolvedValue(mockedUserData); // mock the findOne method
+
       // Mock the repository methods
       reportRepository.create.mockReturnValue(mockedReportData); // mock the create method
       reportRepository.save.mockResolvedValue(mockedReportData); // mock the save method
 
       // Create a new report
-      const report = await service.create(mockedReportData);
+      const report = await service.create(mockedReportData, mockedUserData);
 
       // Assertions
       expect(reportRepository.create).toHaveBeenCalledWith(mockedReportData);
@@ -114,6 +117,9 @@ describe('ReportsService', () => {
     });
 
     it('should throw an error if the report object is not saved', async () => {
+      // Mock the user repository methods
+      userRepository.findOne.mockResolvedValue(mockedUserData); // mock the findOne method
+
       // Mock the repository methods
       reportRepository.create.mockReturnValue(mockedReportData); // mock the create method
       reportRepository.save.mockRejectedValue(
@@ -123,9 +129,9 @@ describe('ReportsService', () => {
       // Assertions
 
       // expect the error is thrown
-      await expect(service.create(mockedReportDto)).rejects.toThrow(
-        'Unable to create and save report',
-      );
+      await expect(
+        service.create(mockedReportDto, mockedUserData),
+      ).rejects.toThrow('Unable to create and save report');
 
       // expect the create method to be called with the mocked report dto
       expect(reportRepository.create).toHaveBeenCalledWith(mockedReportDto);

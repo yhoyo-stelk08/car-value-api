@@ -1,3 +1,4 @@
+import { User } from '@/users/users.entity';
 import { Test, TestingModule } from '@nestjs/testing';
 import { CreateReportDto } from './dtos/create-report.dto';
 import { UpdateReportDto } from './dtos/update-report.dto';
@@ -12,6 +13,13 @@ const mockReportsService = {
   update: jest.fn(),
   remove: jest.fn(),
 };
+
+// mock user data
+const mockUser = {
+  id: 1,
+  email: 'test@example.com',
+  password: 'password',
+} as User;
 
 // mock the reports data
 const mockReportsData = [
@@ -86,10 +94,13 @@ describe('ReportsController', () => {
       mockReportsService.create.mockResolvedValue(expectedResult);
 
       // call the create method
-      const result = await controller.create(createReportDto);
+      const result = await controller.create(createReportDto, mockUser);
 
       // expect the reportService.create method to have been called with the correct arguments
-      expect(mockReportsService.create).toHaveBeenCalledWith(createReportDto);
+      expect(mockReportsService.create).toHaveBeenCalledWith(
+        createReportDto,
+        mockUser,
+      );
 
       // expect the reportService.create method to have been called only once
       expect(mockReportsService.create).toHaveBeenCalledTimes(1);
@@ -116,12 +127,15 @@ describe('ReportsController', () => {
       );
 
       // call the create method and expect an error to be thrown
-      await expect(controller.create(createReportDto)).rejects.toThrow(
-        'Unable to create and save report',
-      );
+      await expect(
+        controller.create(createReportDto, mockUser),
+      ).rejects.toThrow('Unable to create and save report');
 
       // expect the reportService.create method to have been called with the correct arguments
-      expect(mockReportsService.create).toHaveBeenCalledWith(createReportDto);
+      expect(mockReportsService.create).toHaveBeenCalledWith(
+        createReportDto,
+        mockUser,
+      );
 
       // expect the reportService.create method to have been called only once
       expect(mockReportsService.create).toHaveBeenCalledTimes(1);

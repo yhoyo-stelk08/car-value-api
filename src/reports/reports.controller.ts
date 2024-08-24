@@ -1,4 +1,6 @@
 import { AuthGuard } from '@/guards/auth.guard';
+import { CurrentUser } from '@/users/decorators/current-user.decorator';
+import { User } from '@/users/users.entity';
 import {
   Body,
   Controller,
@@ -16,8 +18,8 @@ export class ReportsController {
 
   @Post()
   @UseGuards(AuthGuard)
-  create(@Body() body: CreateReportDto) {
-    return this.reportService.create(body);
+  create(@Body() body: CreateReportDto, @CurrentUser() user: User) {
+    return this.reportService.create(body, user);
   }
 
   findAll(criteria?: {

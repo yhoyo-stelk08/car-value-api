@@ -25,6 +25,7 @@ export class User {
 
   @OneToMany(() => Report, (report) => report.user)
   reports: Report[];
+
   @AfterInsert()
   logInsert() {
     console.log('Inserted User with id', this.id);
