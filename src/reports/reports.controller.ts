@@ -12,4 +12,20 @@ export class ReportsController {
   create(@Body() body: CreateReportDto) {
     return this.reportService.create(body);
   }
+
+  findAll() {
+    return null;
+  }
+
+  findOne() {
+    return null;
+  }
+
+  update() {
+    return null;
+  }
+
+  remove() {
+    return null;
+  }
 }
