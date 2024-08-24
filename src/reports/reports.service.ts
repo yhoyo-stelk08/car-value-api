@@ -19,6 +19,16 @@ export class ReportsService {
     }
   }
 
+  async approveReport(id: number, approved: boolean): Promise<Report> {
+    try {
+      const report = await this.repo.findOneByOrFail({ id });
+      report.approved = approved;
+      return await this.repo.save(report);
+    } catch (error) {
+      throw new NotFoundException('Report not found');
+    }
+  }
+
   async findAll(criteria?: {
     make?: string;
     model?: string;
