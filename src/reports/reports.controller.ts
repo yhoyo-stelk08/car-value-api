@@ -1,4 +1,5 @@
 import { AuthGuard } from '@/guards/auth.guard';
+import { Serialize } from '@/interceptors/serialize.interceptor';
 import { CurrentUser } from '@/users/decorators/current-user.decorator';
 import { User } from '@/users/users.entity';
 import {
@@ -9,10 +10,12 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { CreateReportDto } from './dtos/create-report.dto';
+import { ReportDto } from './dtos/report.dto';
 import { UpdateReportDto } from './dtos/update-report.dto';
 import { ReportsService } from './reports.service';
 
 @Controller('reports')
+@Serialize(ReportDto)
 export class ReportsController {
   constructor(private reportService: ReportsService) {}
 
