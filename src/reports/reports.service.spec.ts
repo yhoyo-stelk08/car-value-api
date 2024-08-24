@@ -217,7 +217,7 @@ describe('ReportsService', () => {
 
       // mock the repository methods
       mockRepository.findOneByOrFail.mockRejectedValue(
-        new Error('Report not found'),
+        new NotFoundException('Report not found'),
       ); // mock the findOneByOrFail method
 
       // Assertions
@@ -261,7 +261,7 @@ describe('ReportsService', () => {
 
       // mock the repository methods
       mockRepository.findOneByOrFail.mockRejectedValue(
-        new Error('Report not found'),
+        new NotFoundException('Report not found'),
       ); // mock the findOneByOrFail method
 
       // Assertions
