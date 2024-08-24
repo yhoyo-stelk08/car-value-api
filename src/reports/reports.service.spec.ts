@@ -40,18 +40,18 @@ describe('ReportsService', () => {
     approved: false,
   };
 
-  // mock the report object
-  const mockedReportData = {
-    id: 1,
-    ...mockedReportDto,
-  } as Report;
-
   // mock the user object
   const mockedUserData = {
     id: 1,
     email: 'test@example.com',
     password: 'password',
   } as User;
+
+  // mock the report object
+  const mockedReportData = {
+    id: 1,
+    ...mockedReportDto,
+  } as Report;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -107,11 +107,8 @@ describe('ReportsService', () => {
       expect(reportRepository.create).toHaveBeenCalledWith(mockedReportData);
       expect(reportRepository.save).toHaveBeenCalledWith(mockedReportData);
 
-      // Check if the report object has been created
-      expect(reportRepository.create).toHaveBeenCalled();
-
-      // Check if the report object has been saved
-      expect(reportRepository.save).toHaveBeenCalled();
+      // Ensure that the report is associated with the correct user
+      expect(report.user).toEqual(mockedUserData);
 
       // Check if the report object is returned
       expect(report).toEqual(mockedReportData);
@@ -148,37 +145,45 @@ describe('ReportsService', () => {
   });
 
   describe('findAll', () => {
-    it('should find all reports', async () => {
+    it('should find all reports and return them with associated user', async () => {
+      // Mock report data
+      const mockedReportDataWithUser = {
+        ...mockedReportData,
+        user: mockedUserData,
+      };
       // Mock the repository methods
-      reportRepository.find.mockResolvedValue([mockedReportData]);
+      reportRepository.find.mockResolvedValue([mockedReportDataWithUser]);
 
       // mock the findAll method in service
       const reports = await service.findAll();
 
       // Assertions
-      expect(reportRepository.find).toHaveBeenCalled();
+      expect(reportRepository.find).toHaveBeenCalled(); // expect the find method to be called
+
+      // Ensure that the report is associated with the correct user
+      expect(reports[0].user).toEqual(mockedUserData);
 
       // Check if the reports array is returned
-      expect(reports).toEqual([mockedReportData]);
+      expect(reports).toEqual([mockedReportDataWithUser]);
     });
 
-    it('should find all reports based on search criteria and return an array of reports object', async () => {
-      // mock the search criteria
+    it('should find all reports based on search criteria and return them with the associated user', async () => {
       const searchCriteria = { make: 'Toyota' };
 
-      // Mock the repository methods
-      reportRepository.findBy.mockResolvedValue([mockedReportData]); // mock the findBy method
+      // Mock the repository to return reports with associated users based on criteria
+      const mockedReportWithUserData = {
+        ...mockedReportData,
+        user: mockedUserData,
+      };
+      reportRepository.findBy.mockResolvedValue([mockedReportWithUserData]);
 
-      // mock the findAll method in service
+      // Call the findAll method in the service with search criteria
       const reports = await service.findAll(searchCriteria);
 
       // Assertions
-
-      // expect the findBy method to be called with the search criteria
       expect(reportRepository.findBy).toHaveBeenCalledWith(searchCriteria);
-
-      // Check if the reports array is returned
-      expect(reports).toEqual([mockedReportData]);
+      expect(reports[0].user).toEqual(mockedUserData);
+      expect(reports).toEqual([mockedReportWithUserData]);
     });
 
     it('should return an empty array when no reports are found', async () => {
@@ -194,25 +199,27 @@ describe('ReportsService', () => {
   });
 
   describe('findOne', () => {
-    it('should find a report based on search criteria', async () => {
-      // mock the search criteria
+    it('should find a report based on search criteria and return it with the associated user', async () => {
       const searchCriteria = { id: 1 };
 
-      // Mock the repository methods
-      reportRepository.findOneByOrFail.mockResolvedValue(mockedReportData); // mock the findOneByOrFail method
+      // Mock the repository to return a report with an associated user
+      const mockedReportWithUserData = {
+        ...mockedReportData,
+        user: mockedUserData,
+      };
+      reportRepository.findOneByOrFail.mockResolvedValue(
+        mockedReportWithUserData,
+      );
 
-      // mock the findOne method in service
+      // Call the findOne method in the service
       const report = await service.findOne(searchCriteria);
 
       // Assertions
-
-      // expect the findOneByOrFail method to be called with the search criteria
       expect(reportRepository.findOneByOrFail).toHaveBeenCalledWith(
         searchCriteria,
       );
-
-      // Check if the report object is returned
-      expect(report).toEqual(mockedReportData);
+      expect(report.user).toEqual(mockedUserData);
+      expect(report).toEqual(mockedReportWithUserData);
     });
 
     it('should throw an error if the report is not found', async () => {
@@ -239,26 +246,25 @@ describe('ReportsService', () => {
   });
 
   describe('update', () => {
-    it('should update a report', async () => {
+    it('should update a report and return the updated report with the associated user', async () => {
       const updateData: UpdateReportDto = { price: 200000 };
-      const updatedReport: Report = { ...mockedReportData, ...updateData };
+      const updatedReport = {
+        ...mockedReportData,
+        ...updateData,
+        user: mockedUserData,
+      };
 
-      // Mock the repository methods
-      reportRepository.findOneByOrFail.mockResolvedValue(mockedReportData); // mock the findOneByOrFail method
-      reportRepository.save.mockResolvedValue(updatedReport); // mock the save method
+      // Mock the repository to find and save the report
+      reportRepository.findOneByOrFail.mockResolvedValue(mockedReportData); // existing report
+      reportRepository.save.mockResolvedValue(updatedReport); // updated report
 
-      // mock the update method in service
+      // Call the update method in the service
       const report = await service.update(1, updateData);
 
       // Assertions
-
-      // expect the findOneByOrFail method to be called with the search criteria
       expect(reportRepository.findOneByOrFail).toHaveBeenCalledWith({ id: 1 });
-
-      // expect the save method to be called with the updated report data
       expect(reportRepository.save).toHaveBeenCalledWith(updatedReport);
-
-      // Check if the report object is returned
+      expect(report.user).toEqual(mockedUserData);
       expect(report).toEqual(updatedReport);
     });
 
@@ -286,24 +292,21 @@ describe('ReportsService', () => {
   });
 
   describe('remove', () => {
-    it('should remove a report', async () => {
-      // Mock the repository methods
-      reportRepository.findOneByOrFail.mockResolvedValue(mockedReportData); // mock the findOneByOrFail method
-      reportRepository.remove.mockResolvedValue(mockedReportData); // mock the remove method
+    it('should remove a report and return the removed report with the associated user', async () => {
+      const reportWithUser = { ...mockedReportData, user: mockedUserData };
 
-      // mock the remove method in service
+      // Mock the repository to find and remove the report
+      reportRepository.findOneByOrFail.mockResolvedValue(reportWithUser);
+      reportRepository.remove.mockResolvedValue(reportWithUser);
+
+      // Call the remove method in the service
       const report = await service.remove(1);
 
       // Assertions
-
-      // expect the findOneByOrFail method to be called with the search criteria
       expect(reportRepository.findOneByOrFail).toHaveBeenCalledWith({ id: 1 });
-
-      // expect the remove method to be called with the report data
-      expect(reportRepository.remove).toHaveBeenCalledWith(mockedReportData);
-
-      // Check if the report object is returned
-      expect(report).toEqual(mockedReportData);
+      expect(reportRepository.remove).toHaveBeenCalledWith(reportWithUser);
+      expect(report.user).toEqual(mockedUserData);
+      expect(report).toEqual(reportWithUser);
     });
 
     it('should throw an error if the report is not found', async () => {
