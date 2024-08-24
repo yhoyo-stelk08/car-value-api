@@ -37,6 +37,7 @@ describe('ReportsService', () => {
     mileage: 20000,
     lat: 34.0522,
     lng: -118.2437,
+    approved: false,
   };
 
   // mock the report object
