@@ -167,12 +167,12 @@ describe('ReportsController', () => {
       expect(mockReportsService.findAll).toHaveBeenCalledTimes(1);
     });
 
-    it('should return an empty array if no reports found', () => {
+    it('should return an empty array if no reports found', async () => {
       // mock the resolve value of the findAll method as an empty array
       mockReportsService.findAll.mockResolvedValue([]);
 
       // call the findAll method
-      const reports = controller.findAll();
+      const reports = await controller.findAll();
 
       // Assertions
 
