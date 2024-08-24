@@ -8,8 +8,8 @@ import { Report } from './reports.entity';
 export class ReportsService {
   constructor(@InjectRepository(Report) private repo: Repository<Report>) {}
 
-  create(createReportDto: CreateReportDto) {
+  async create(createReportDto: CreateReportDto) {
     const report = this.repo.create(createReportDto);
-    return this.repo.save(report);
+    return await this.repo.save(report);
   }
 }
