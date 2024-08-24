@@ -13,11 +13,24 @@ export class ReportsController {
     return this.reportService.create(body);
   }
 
-  findAll() {
+  findAll(criteria?: {
+    make?: string;
+    model?: string;
+    year?: number;
+    mileage?: number;
+    price?: number;
+  }) {
     return null;
   }
 
-  findOne() {
+  findOne(criteria: {
+    id?: number;
+    price?: number;
+    mileage?: number;
+    make?: string;
+    model?: string;
+    year?: number;
+  }) {
     return null;
   }
 
