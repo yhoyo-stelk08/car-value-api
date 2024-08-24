@@ -12,4 +12,19 @@ export class ReportsService {
     const report = this.repo.create(createReportDto);
     return await this.repo.save(report);
   }
+
+  async findAll(): Promise<Report[]> {}
+
+  async findOne(criteria: {
+    id?: number;
+    price?: number;
+    mileage?: number;
+    make?: string;
+    model?: string;
+    year?: number;
+  }): Promise<Report> {}
+
+  async update(): Promise<Report> {}
+
+  async remove(): Promise<Report> {}
 }
