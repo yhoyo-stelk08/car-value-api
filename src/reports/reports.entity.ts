@@ -27,9 +27,9 @@ export class Report {
   @Column({ type: 'double precision' })
   lng: number;
 
+  @Column({ default: false })
+  approved: boolean;
+
   @ManyToOne(() => User, (user) => user.reports)
   user: User;
-
-  // @Column()
-  // approved: boolean;
 }
