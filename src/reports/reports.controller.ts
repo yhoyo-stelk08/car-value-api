@@ -5,7 +5,10 @@ import { User } from '@/users/users.entity';
 import {
   Body,
   Controller,
+  Get,
   NotFoundException,
+  Param,
+  Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -25,6 +28,19 @@ export class ReportsController {
     return this.reportService.create(body, user);
   }
 
+  @Patch('/:id')
+  approveReport(
+    @Param('id') id: string | number,
+    @Body() body: { approved: boolean },
+  ) {
+    try {
+      return this.reportService.approveReport(Number(id), body.approved);
+    } catch (error) {
+      throw new NotFoundException('Report not found');
+    }
+  }
+
+  @Get()
   findAll(criteria?: {
     make?: string;
     model?: string;
@@ -34,13 +50,15 @@ export class ReportsController {
   }) {
     if (criteria) {
       try {
-        return this.reportService.findAll(criteria);
+        const report = this.reportService.findAll(criteria);
+        console.log(report);
       } catch (error) {
         return [];
       }
     }
     try {
-      return this.reportService.findAll();
+      const report = this.reportService.findAll();
+      return report;
     } catch (error) {
       return [];
     }
