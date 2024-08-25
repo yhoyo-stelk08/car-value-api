@@ -48,17 +48,12 @@ export class ReportsController {
     mileage?: number;
     price?: number;
   }) {
-    if (criteria) {
-      try {
-        const report = this.reportService.findAll(criteria);
-        console.log(report);
-      } catch (error) {
-        return [];
-      }
-    }
     try {
-      const report = this.reportService.findAll();
-      return report;
+      if (criteria) {
+        return this.reportService.findAll(criteria);
+      } else {
+        return this.reportService.findAll();
+      }
     } catch (error) {
       return [];
     }

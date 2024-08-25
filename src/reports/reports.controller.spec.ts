@@ -192,7 +192,6 @@ describe('ReportsController', () => {
 
       // call the findAll method
       const reports = await controller.findAll();
-      console.log(reports);
 
       // Assertions
 
@@ -212,7 +211,6 @@ describe('ReportsController', () => {
 
       // call the findAll method
       const reports = await controller.findAll(searchCriteria);
-
       // Assertions
 
       // expect the reportService.findAll method to have been called with the correct arguments
