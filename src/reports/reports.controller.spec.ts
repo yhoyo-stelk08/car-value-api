@@ -35,6 +35,7 @@ const mockReportsData = [
     lat: 34.0522,
     lng: -118.2437,
     approved: false,
+    userId: mockUser.id,
   },
   {
     id: 2,
@@ -46,6 +47,7 @@ const mockReportsData = [
     lat: 34.0522,
     lng: -118.2437,
     approved: false,
+    userId: mockUser.id,
   },
 ];
 
