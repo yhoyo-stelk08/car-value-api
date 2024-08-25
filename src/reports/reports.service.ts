@@ -21,7 +21,7 @@ export class ReportsService {
 
   async approveReport(id: number, approved: boolean): Promise<Report> {
     try {
-      const report = await this.repo.findOneByOrFail({ id });
+      const report = await this.repo.findOneOrFail({ where: { id } });
       report.approved = approved;
       return await this.repo.save(report);
     } catch (error) {
@@ -38,9 +38,11 @@ export class ReportsService {
   }): Promise<Report[]> {
     try {
       if (criteria) {
-        return await this.repo.findBy(criteria);
+        return await this.repo.find({ where: criteria, relations: ['user'] });
       }
-      return await this.repo.find();
+      return await this.repo.find({
+        relations: ['user'],
+      });
     } catch (error) {
       return [];
     }
@@ -55,7 +57,10 @@ export class ReportsService {
     year?: number;
   }): Promise<Report> {
     try {
-      return await this.repo.findOneByOrFail(criteria);
+      return await this.repo.findOneOrFail({
+        where: criteria,
+        relations: ['user'],
+      });
     } catch (error) {
       throw new NotFoundException('Report not found');
     }
@@ -63,7 +68,7 @@ export class ReportsService {
 
   async update(id: number, attrs: Partial<Report>): Promise<Report> {
     try {
-      const report = await this.repo.findOneByOrFail({ id });
+      const report = await this.repo.findOneOrFail({ where: { id } });
 
       if (!report) {
         throw new NotFoundException('Report not found');
@@ -78,7 +83,7 @@ export class ReportsService {
 
   async remove(id: number): Promise<Report> {
     try {
-      const report = await this.repo.findOneByOrFail({ id });
+      const report = await this.repo.findOneOrFail({ where: { id } });
 
       if (!report) {
         throw new NotFoundException('Report not found');
