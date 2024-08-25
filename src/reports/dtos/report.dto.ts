@@ -28,7 +28,11 @@ export class ReportDto {
   @Expose()
   approved: boolean;
 
-  @Transform(({ obj }) => obj.user.id)
+  // @Transform(({ obj }) => {
+  //   console.log('Transforming userId from Report:', obj.user);
+  //   return obj.user?.id;
+  // })
+  @Transform(({ obj }) => obj.user?.id)
   @Expose()
   userId: number;
 }
