@@ -1,6 +1,7 @@
 import { User } from '@/users/users.entity';
 import { Test, TestingModule } from '@nestjs/testing';
 import { CreateReportDto } from './dtos/create-report.dto';
+import { ReportDto } from './dtos/report.dto';
 import { UpdateReportDto } from './dtos/update-report.dto';
 import { ReportsController } from './reports.controller';
 import { ReportsService } from './reports.service';
@@ -8,6 +9,7 @@ import { ReportsService } from './reports.service';
 // mock report service
 const mockReportsService = {
   create: jest.fn(),
+  approveReport: jest.fn(),
   findAll: jest.fn(),
   findOne: jest.fn(),
   update: jest.fn(),
@@ -32,6 +34,7 @@ const mockReportsData = [
     mileage: 15000,
     lat: 34.0522,
     lng: -118.2437,
+    approved: false,
   },
   {
     id: 2,
@@ -42,6 +45,7 @@ const mockReportsData = [
     mileage: 20000,
     lat: 34.0522,
     lng: -118.2437,
+    approved: false,
   },
 ];
 
@@ -88,9 +92,10 @@ describe('ReportsController', () => {
         mileage: 15000,
         lat: 34.0522,
         lng: -118.2437,
+        approved: false,
       };
 
-      const expectedResult = { id: 1, ...createReportDto };
+      const expectedResult = { id: 1, ...createReportDto, userId: mockUser.id };
       mockReportsService.create.mockResolvedValue(expectedResult);
 
       // call the create method
@@ -119,6 +124,7 @@ describe('ReportsController', () => {
         mileage: 15000,
         lat: 34.0522,
         lng: -118.2437,
+        approved: false,
       };
 
       // mock the reportService.create method to throw an error
@@ -142,13 +148,49 @@ describe('ReportsController', () => {
     });
   });
 
+  describe('approveReport', () => {
+    it('should call reportService.approveReport() with the correct arguments', async () => {
+      // mock the search criteria
+      const searchCriteria = { id: 1 };
+
+      // mock the resolve value of the approveReport method
+      mockReportsService.approveReport.mockResolvedValue(mockReportsData[0]);
+
+      // call the approveReport method
+      const approveReport = await controller.approveReport(searchCriteria.id, {
+        approved: true,
+      });
+
+      // Assertions
+
+      // expect the reportService.approveReport method to have been called with the correct arguments
+      expect(mockReportsService.approveReport).toHaveBeenCalledWith(
+        searchCriteria.id,
+        true,
+      );
+
+      // expect the report to be returned and equal to the mock data
+      expect(approveReport).toEqual(mockReportsData[0]);
+
+      // expect the reportService.approveReport method to have been called only once
+      expect(mockReportsService.approveReport).toHaveBeenCalledTimes(1);
+    });
+  });
+
   describe('findAll', () => {
     it('should find all reports and return the reports array', async () => {
       // mock the resolve value of the findAll method
       mockReportsService.findAll.mockResolvedValue(mockReportsData);
 
+      // mock the expected result
+      const expectedResult: ReportDto[] = mockReportsData.map((mockReport) => ({
+        ...mockReport,
+        userId: mockUser.id,
+      }));
+
       // call the findAll method
       const reports = await controller.findAll();
+      console.log(reports);
 
       // Assertions
 
@@ -156,7 +198,7 @@ describe('ReportsController', () => {
       expect(mockReportsService.findAll).toHaveBeenCalled();
 
       // expect the reports array to be returned and equal to the mock data
-      expect(reports).toEqual(mockReportsData);
+      expect(reports).toEqual(expectedResult);
     });
 
     it('should find all reports based on search category and return the reports array', async () => {
@@ -206,6 +248,12 @@ describe('ReportsController', () => {
       // mock the resolve value of the findOne method
       mockReportsService.findOne.mockResolvedValue(mockReportsData[0]);
 
+      // mock the expected result
+      const expectedResult: ReportDto = {
+        ...mockReportsData[0],
+        userId: mockUser.id,
+      };
+
       // call the findOne method
       const report = await controller.findOne(searchCriteria);
 
@@ -215,7 +263,7 @@ describe('ReportsController', () => {
       expect(mockReportsService.findOne).toHaveBeenCalledWith(searchCriteria);
 
       // expect the report to be returned and equal to the mock data
-      expect(report).toEqual(mockReportsData[0]);
+      expect(report).toEqual(expectedResult);
     });
 
     it('should throw an error if report not found', async () => {
