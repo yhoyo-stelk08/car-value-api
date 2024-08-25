@@ -15,7 +15,7 @@ const mockReportRepository = () => ({
   find: jest.fn(),
   findBy: jest.fn(),
   remove: jest.fn(),
-  findOneByOrFail: jest.fn(),
+  findOneOrFail: jest.fn(),
 });
 
 // mock user repository
@@ -147,17 +147,20 @@ describe('ReportsService', () => {
   describe('approveReport', () => {
     it('should approve a report and return the approved report with the associated user', async () => {
       const approved = true;
+      // Mock the report data with the associated user
       const reportWithUser = { ...mockedReportData, user: mockedUserData };
 
       // Mock the repository to find and save the report
-      reportRepository.findOneByOrFail.mockResolvedValue(reportWithUser); // existing report
+      reportRepository.findOneOrFail.mockResolvedValue(reportWithUser); // existing report
       reportRepository.save.mockResolvedValue(reportWithUser); // updated report
 
       // Call the approveReport method in the service
       const report = await service.approveReport(1, approved);
 
       // Assertions
-      expect(reportRepository.findOneByOrFail).toHaveBeenCalledWith({ id: 1 });
+      expect(reportRepository.findOneOrFail).toHaveBeenCalledWith({
+        where: { id: 1 },
+      });
       expect(reportRepository.save).toHaveBeenCalledWith(reportWithUser);
       expect(report.user).toEqual(mockedUserData);
       expect(report).toEqual(reportWithUser);
@@ -168,7 +171,7 @@ describe('ReportsService', () => {
       const searchCriteria = { id: 1 };
 
       // mock the repository methods
-      reportRepository.findOneByOrFail.mockRejectedValue(
+      reportRepository.findOneOrFail.mockRejectedValue(
         new NotFoundException('Report not found'),
       ); // mock the findOneByOrFail method
 
@@ -180,9 +183,9 @@ describe('ReportsService', () => {
       );
 
       // expect the findOneByOrFail method to be called with the search criteria
-      expect(reportRepository.findOneByOrFail).toHaveBeenCalledWith(
-        searchCriteria,
-      );
+      expect(reportRepository.findOneOrFail).toHaveBeenCalledWith({
+        where: searchCriteria,
+      });
     });
   });
 
@@ -217,13 +220,16 @@ describe('ReportsService', () => {
         ...mockedReportData,
         user: mockedUserData,
       };
-      reportRepository.findBy.mockResolvedValue([mockedReportWithUserData]);
+      reportRepository.find.mockResolvedValue([mockedReportWithUserData]);
 
       // Call the findAll method in the service with search criteria
       const reports = await service.findAll(searchCriteria);
 
       // Assertions
-      expect(reportRepository.findBy).toHaveBeenCalledWith(searchCriteria);
+      expect(reportRepository.find).toHaveBeenCalledWith({
+        where: searchCriteria,
+        relations: ['user'],
+      });
       expect(reports[0].user).toEqual(mockedUserData);
       expect(reports).toEqual([mockedReportWithUserData]);
     });
@@ -249,7 +255,7 @@ describe('ReportsService', () => {
         ...mockedReportData,
         user: mockedUserData,
       };
-      reportRepository.findOneByOrFail.mockResolvedValue(
+      reportRepository.findOneOrFail.mockResolvedValue(
         mockedReportWithUserData,
       );
 
@@ -257,9 +263,10 @@ describe('ReportsService', () => {
       const report = await service.findOne(searchCriteria);
 
       // Assertions
-      expect(reportRepository.findOneByOrFail).toHaveBeenCalledWith(
-        searchCriteria,
-      );
+      expect(reportRepository.findOneOrFail).toHaveBeenCalledWith({
+        where: searchCriteria,
+        relations: ['user'],
+      });
       expect(report.user).toEqual(mockedUserData);
       expect(report).toEqual(mockedReportWithUserData);
     });
@@ -269,9 +276,9 @@ describe('ReportsService', () => {
       const searchCriteria = { id: 1 };
 
       // mock the repository methods
-      reportRepository.findOneByOrFail.mockRejectedValue(
+      reportRepository.findOneOrFail.mockRejectedValue(
         new NotFoundException('Report not found'),
-      ); // mock the findOneByOrFail method
+      ); // mock the findOneOrFail method
 
       // Assertions
 
@@ -281,9 +288,10 @@ describe('ReportsService', () => {
       );
 
       // expect the findOneByOrFail method to be called with the search criteria
-      expect(reportRepository.findOneByOrFail).toHaveBeenCalledWith(
-        searchCriteria,
-      );
+      expect(reportRepository.findOneOrFail).toHaveBeenCalledWith({
+        where: searchCriteria,
+        relations: ['user'],
+      });
     });
   });
 
@@ -297,14 +305,16 @@ describe('ReportsService', () => {
       };
 
       // Mock the repository to find and save the report
-      reportRepository.findOneByOrFail.mockResolvedValue(mockedReportData); // existing report
+      reportRepository.findOneOrFail.mockResolvedValue(mockedReportData); // existing report
       reportRepository.save.mockResolvedValue(updatedReport); // updated report
 
       // Call the update method in the service
       const report = await service.update(1, updateData);
 
       // Assertions
-      expect(reportRepository.findOneByOrFail).toHaveBeenCalledWith({ id: 1 });
+      expect(reportRepository.findOneOrFail).toHaveBeenCalledWith({
+        where: { id: 1 },
+      });
       expect(reportRepository.save).toHaveBeenCalledWith(updatedReport);
       expect(report.user).toEqual(mockedUserData);
       expect(report).toEqual(updatedReport);
@@ -315,9 +325,9 @@ describe('ReportsService', () => {
       const searchCriteria = { price: 200000 };
 
       // mock the repository methods
-      reportRepository.findOneByOrFail.mockRejectedValue(
+      reportRepository.findOneOrFail.mockRejectedValue(
         new NotFoundException('Report not found'),
-      ); // mock the findOneByOrFail method
+      ); // mock the findOneOrFail method
 
       // Assertions
 
@@ -327,9 +337,10 @@ describe('ReportsService', () => {
       );
 
       // expect the findOneByOrFail method to be called with the search criteria
-      expect(reportRepository.findOneByOrFail).toHaveBeenCalledWith(
-        searchCriteria,
-      );
+      expect(reportRepository.findOneOrFail).toHaveBeenCalledWith({
+        where: searchCriteria,
+        relations: ['user'],
+      });
     });
   });
 
@@ -338,14 +349,16 @@ describe('ReportsService', () => {
       const reportWithUser = { ...mockedReportData, user: mockedUserData };
 
       // Mock the repository to find and remove the report
-      reportRepository.findOneByOrFail.mockResolvedValue(reportWithUser);
+      reportRepository.findOneOrFail.mockResolvedValue(reportWithUser);
       reportRepository.remove.mockResolvedValue(reportWithUser);
 
       // Call the remove method in the service
       const report = await service.remove(1);
 
       // Assertions
-      expect(reportRepository.findOneByOrFail).toHaveBeenCalledWith({ id: 1 });
+      expect(reportRepository.findOneOrFail).toHaveBeenCalledWith({
+        where: { id: 1 },
+      });
       expect(reportRepository.remove).toHaveBeenCalledWith(reportWithUser);
       expect(report.user).toEqual(mockedUserData);
       expect(report).toEqual(reportWithUser);
@@ -356,9 +369,9 @@ describe('ReportsService', () => {
       const searchCriteria = { id: 1 };
 
       // mock the repository methods
-      reportRepository.findOneByOrFail.mockRejectedValue(
+      reportRepository.findOneOrFail.mockRejectedValue(
         new NotFoundException('Report not found'),
-      ); // mock the findOneByOrFail method
+      ); // mock the findOneOrFail method
 
       // Assertions
 
@@ -367,10 +380,11 @@ describe('ReportsService', () => {
         'Report not found',
       );
 
-      // expect the findOneByOrFail method to be called with the search criteria
-      expect(reportRepository.findOneByOrFail).toHaveBeenCalledWith(
-        searchCriteria,
-      );
+      // expect the findOneOrFail method to be called with the search criteria
+      expect(reportRepository.findOneOrFail).toHaveBeenCalledWith({
+        where: searchCriteria,
+        relations: ['user'],
+      });
     });
   });
 });
